@@ -50,6 +50,10 @@ Vector3 Vector3::Cross(Vector3 other){
 	return new_vector3;
 }
 
+Vector3 Vector3::Copy(){
+	return Vector3(this->x, this->y, this->z);
+}
+
 Vector3 Vector3::operator+(Vector3 other){
 	Vector3 new_vector3(x + other.x, y + other.y, z + other.z);
 	return new_vector3;

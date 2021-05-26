@@ -43,7 +43,7 @@ Intersection Cast(Vector3 ray, Vector3 camera_pos, Object objects[], int object_
 			flat_color = Vector3(r, g, b);
 		}
 
-		Vector3 reflective_color;
+		Vector3 reflective_color = Vector3(0, 0, 0);
 		if(bounce < max_bounce && shader.reflective > 0){
 			//Formula for a reflection ray
 			//https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
@@ -56,8 +56,18 @@ Intersection Cast(Vector3 ray, Vector3 camera_pos, Object objects[], int object_
 			reflective_color.y = (shader.color.y/255) * reflective_color.y;
 			reflective_color.z = (shader.color.z/255) * reflective_color.z;
 		}
-		else{
-			reflective_color = Vector3(0, 0, 0);
+
+		Vector3 refractive_color = Vector3(0, 0, 0);
+		if(bounce < max_bounce && shader.refractive > 0){
+			Vector3 normal = intx.normal;
+			
+			Vector3 refraction_ray = Vector3(1, ray.Angle() + (ray.Angle()-normal.Angle()) );
+			
+			refractive_color = Cast(refraction_ray, intx.point + refraction_ray, objects, object_count, max_bounce, bounce).color;
+			
+			refractive_color.x = (shader.color.x/255) * refractive_color.x;
+			refractive_color.y = (shader.color.y/255) * refractive_color.y;
+			refractive_color.z = (shader.color.z/255) * refractive_color.z;
 		}
 		
 		Vector3 diffuse_color = Vector3(0, 0, 0);
@@ -94,7 +104,10 @@ Intersection Cast(Vector3 ray, Vector3 camera_pos, Object objects[], int object_
 			diffuse_color.z = (shader.color.z/255) * diffuse_color.z;
 		}
 
-		intx.color = reflective_color*shader.reflective + flat_color*shader.flat + diffuse_color*shader.diffuse;
+		intx.color = reflective_color*shader.reflective +
+		             flat_color*shader.flat +
+					 diffuse_color*shader.diffuse +
+					 refractive_color*shader.refractive;
 
 
 		return intx;
@@ -120,13 +133,13 @@ int main(){
 	int object_count = 4;
 	Object objects[4];	
 	objects[0] = Object("objects\\floor.obj", Vector3(0, 0, 0), 
-		Shader{0.5, 0.5, 0, Vector3(200, 200, 200)} );
-	objects[1] = Object("objects\\cube.obj", Vector3(1, 0, 0.1), 
-		Shader{1, 0, 0, Vector3(255, 255, 255)} );
+		Shader{0.5, 0.5, 0, 0, 1, Vector3(200, 200, 200)} );
+	objects[1] = Object("objects\\cube.obj", Vector3(-1, 0, 0.1), 
+		Shader{0, 0, 0, 1, 1, Vector3(100, 100, 255)} );
 	objects[2] = Object("objects\\cube.obj", Vector3(-2, -2.5, 0.1),
-		Shader{0.5, 0.5, 0, Vector3(0, 255, 0)});
-	objects[3] = Object("objects\\sphere2.obj", Vector3(-2, 2.5, 0.1), 
-		Shader{0.8, 0.2, 0, Vector3(0, 0, 255)});
+		Shader{0.5, 0.5, 0, 0, 1, Vector3(0, 255, 0)});
+	objects[3] = Object("objects\\sphere2.obj", Vector3(2, -0, 0.1), 
+		Shader{0.8, 0.2, 0, 0, 1, Vector3(255, 0, 0)});
 	
 
  	for(int z = 0; z <= 40; z ++) //z is the number of steps in the multi-frame animation
@@ -165,9 +178,9 @@ int main(){
 
 				Vector3 color = Cast(ray, camera_pos, objects, object_count, MAX_BOUNCE, 0).color;
 
-				pixels[(y*width*3) + (x*3)] = (unsigned char) (color.x);
+				pixels[(y*width*3) + (x*3)] = (unsigned char) (color.z);
 				pixels[(y*width*3) + (x*3) + 1] = (unsigned char) (color.y);
-				pixels[(y*width*3) + (x*3) + 2] = (unsigned char) (color.z);
+				pixels[(y*width*3) + (x*3) + 2] = (unsigned char) (color.x);
 
 				
 

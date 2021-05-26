@@ -41,7 +41,8 @@ public:
 	
     float Dot(Vector3 other);
 	Vector3 Cross(Vector3 other);
-	
+	Vector3 Copy();
+
     Vector3 operator+(Vector3 other);
 	Vector3 operator+(float f);
 	Vector3 operator-(Vector3 other);
@@ -57,10 +58,12 @@ class Shader{
 public:
     float reflective;
 	float flat;
+    float refractive;
+    float IOF;
 	float diffuse;
 	Vector3 color;
     Shader(){}
-    Shader (float reflective, float flat, float diffuse, Vector3 color);
+    Shader (float reflective, float flat, float diffuse, float refractive, float IOF, Vector3 color);
 };
 
 
