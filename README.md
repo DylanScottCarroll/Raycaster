@@ -19,9 +19,9 @@ As of now, there are a few different properties objects can have:
 
 Features it does not have yet, but that I plan on adding at some point:
 
-* Refraction Shader (Like glass)
+* Refraction Shader (Currently in progress)
 
-* Parameters .txt file
+* Configuration and save files
 
 * Object scaling and rotation
 
